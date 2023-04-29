@@ -66,7 +66,7 @@ def FiltrarDatos(s3_object_advertiser_ids, s3_object_ads_views, s3_object_produc
   return
 
 
-def TopProduct (s3_object_product_views_filt, ds, **kwargs):
+def TopProduct(s3_object_product_views_filt, ds, **kwargs):
     '''
     Esta función toma las vistas de productos ya filtradas y por cada advertiser
     se queda con el top 20 de productos vistos
@@ -164,36 +164,35 @@ with DAG(
     start_date=datetime.datetime(2022,4,1),
     catchup=False
 ) as dag:
-
     FiltrarDatos = PythonOperator(
         task_id='Filtro',
         python_callable=FiltrarDatos, #función definida arriba
-        op_kwargs = {"df_advertiser_ids" : df_advertiser_ids,
-                    "df_product_views": df_product_views,
-                    "df_ads_views":df_ads_views}
+        op_kwargs = {"s3_object_advertiser_ids" : s3_object_advertiser_ids,
+                    "s3_object_ads_views": s3_object_ads_views,
+                    "s3_object_product_views":s3_object_product_views}
     )
 
     TopCTR = PythonOperator(
         task_id='TopCTR',
         python_callable=TopCTR, #función definida arriba
-        op_kwargs = {"df_ads_views_filt" : df_ads_views_filt}
+        op_kwargs = {"s3_object_ads_views_filt" : s3_object_ads_views_filt}
     )
 
     TopProduct = PythonOperator(
         task_id='TopProduct',
         python_callable=TopProduct, #función definida arriba
-        op_kwargs = {"df_product_views_filt" : df_product_views_filt}
+        op_kwargs = {"s3_object_product_views_filt" : s3_object_product_views_filt}
     )
 
     DBWritting = PythonOperator(
         task_id='DBWritting',
         python_callable=DBWritting, #función definida arriba
-        op_kwargs = {"df_topCTR" : df_topCTR,
-                     "df_topProduct" : df_topProduct}
+        op_kwargs = {"s3_object_df_top20" : s3_object_df_top20,
+                     "s3_object_df_top20_CTR" : s3_object_df_top20_CTR}
     )
 
 
 #Dependencias
 FiltrarDatos >> TopCTR
-#FiltrarDatos >> TopProduct
-#[TopCTR, TopProduct] >> DBWritting
+FiltrarDatos >> TopProduct
+[TopCTR, TopProduct] >> DBWritting
