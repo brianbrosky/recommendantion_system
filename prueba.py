@@ -8,7 +8,7 @@ s3_object_product_views = "/Data/Raw/product_views.csv" #el archivo que vamos a 
 
 ds='2023-04-29'
 
-def FiltrarDatos(s3_object_advertiser_ids, s3_object_ads_views, s3_object_product_views, ds, **kwargs):
+def FiltrarDatos(s3_object_advertiser_ids, s3_object_ads_views, s3_object_product_views, ds):
   
   
   '''
@@ -61,4 +61,4 @@ def FiltrarDatos(s3_object_advertiser_ids, s3_object_ads_views, s3_object_produc
   print('GUARDADO EN S3')
   return
 
-FiltrarDatos(s3_object_advertiser_ids, s3_object_ads_views, s3_object_product_views, ds, **kwargs)
+FiltrarDatos(s3_object_advertiser_ids, s3_object_ads_views, s3_object_product_views, ds)
