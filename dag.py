@@ -3,23 +3,43 @@ from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 import pandas as pd
-#from datetime import timedelta
-#from datetime import datetime
+import boto3
 
-pd.to_datetime(pd.Timestamp.today().date()) 
+# instanciamos los objetos de s3
+s3 = boto3.client("s3") #definimos un cliente para trabajar con S3 usando boto3
+bucket_name = "udesa-tp" #el nombre de nuestro bucket creado
 
-def FiltrarDatos(df_advertiser_ids, df_product_views, df_ads_views, ds, **kwargs):
+
+s3_object_advertiser_ids = "Data/Raw/advertiser_ids.csv" #el archivo que vamos a traernos
+s3_object_ads_views = "Data/Raw/ads_views.csv" #el archivo que vamos a traernos
+s3_object_product_views = "Data/Raw/product_views.csv" #el archivo que vamos a traernos
+
+s3_object_product_views_filt = "Data/Processed/product_views_filt.csv"
+s3_object_ads_views_filt = "Data/Processed/ads_views_filt.csv"
+
+s3_object_df_top20 = "Data/Processed/df_top20.csv"
+s3_object_df_top20_CTR = "Data/Processed/df_top20_CTR.csv"
+
+
+
+def FiltrarDatos(s3_object_advertiser_ids, s3_object_ads_views, s3_object_product_views, ds, **kwargs):
+  
+  
   '''
   funcion que agarra los logs de vistas de cada advertiser, de cada producto,
    y los filtra según la fecha de corrida del script y los advertisers activos
   '''
   
+  obj = s3.get_object(Bucket = bucket_name, Key=s3_object_advertiser_ids) #definimos el archivo a levantar
+  df_advertiser_ids = pd.read_csv(obj['Body']) #levantamos el DF
+  
+  obj = s3.get_object(Bucket = bucket_name, Key=s3_object_ads_views) #definimos el archivo a levantar
+  df_ads_views = pd.read_csv(obj['Body']) #levantamos el DF
 
-  #establecemos la fecha de corrida
-  df_advertiser_ids = pd.read_csv(df_advertiser_ids)
-  df_product_views = pd.read_csv(df_product_views)
-  df_ads_views = pd.read_csv(df_ads_views)
-
+  obj = s3.get_object(Bucket = bucket_name, Key=s3_object_product_views) #definimos el archivo a levantar
+  df_product_views = pd.read_csv(obj['Body']) #levantamos el DF
+  
+  
 
   fecha_ayer =  datetime.datetime.strptime(ds, '%Y-%m-%d') - datetime.timedelta(days=1)
   
@@ -36,21 +56,27 @@ def FiltrarDatos(df_advertiser_ids, df_product_views, df_ads_views, ds, **kwargs
   df_ads_views = df_ads_views[df_ads_views['advertiser_id'].isin(df_advertiser_ids['advertiser_id'])] 
 
   #Guardamos los DF filtrados
-  df_product_views.to_csv(location+"/Processed/product_views_filt.csv", index=False)
-  df_ads_views.to_csv(location+"/Processed/ads_views_filt.csv", index=False)
+  #df_product_views.to_csv(location+"/Processed/product_views_filt.csv", index=False)
+  #df_ads_views.to_csv(location+"/Processed/ads_views_filt.csv", index=False)
 
+  s3.put_object(Bucket=bucket_name, Key='Data/Processed/product_views_filt.csv', Body=df_product_views.to_csv(index=False))#.encode('utf-8'))
+  s3.put_object(Bucket=bucket_name, Key='Data/Processed/ads_views_filt.csv', Body=df_ads_views.to_csv(index=False))#.encode('utf-8'))
 
+  print('GUARDADO EN S3')
   return
 
 
-
-def TopProduct (df_product_views_filt, ds, **kwargs):
+def TopProduct (s3_object_product_views_filt, ds, **kwargs):
     '''
     Esta función toma las vistas de productos ya filtradas y por cada advertiser
     se queda con el top 20 de productos vistos
     '''
     
-    df_product_views_filt = pd.read_csv(df_product_views_filt)
+    obj = s3.get_object(Bucket = bucket_name, Key=s3_object_product_views_filt) #definimos el archivo a levantar
+    df_advertiser_ids = pd.read_csv(obj['Body']) #levantamos el DF
+
+
+    #df_product_views_filt = pd.read_csv(df_product_views_filt)
     
     #Agrupamos por advertiser y producto y contamos la cantidad de registros por cada combinación guardando el dato en la columna 'cantidad'
     df_count = df_product_views_filt.groupby(['advertiser_id', 'product_id']).size().reset_index(name='cantidad')
@@ -66,13 +92,16 @@ def TopProduct (df_product_views_filt, ds, **kwargs):
 
     df_top20['fecha_recom'] = fecha_hoy 
     df_top20.to_csv(location+"/Processed/TopProduct.csv", index=False)
+    s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20.csv', Body=df_top20.to_csv(index=False))#.encode('utf-8'))
 
     return 
 
 
-def TopCTR (df_ads_views_filt, ds, **kwargs):
+def TopCTR (s3_object_ads_views_filt, ds, **kwargs):
     
-    df_ads_views_filt = pd.read_csv(df_ads_views_filt)
+    obj = s3.get_object(Bucket = bucket_name, Key=s3_object_ads_views_filt) #definimos el archivo a levantar
+    df_advertiser_ids = pd.read_csv(obj['Body']) #levantamos el DF
+
     
     # Agrupamos el DF por advertiser, producto y tipo para luego contar la cantidad de veces que aparece cada combinación
     df_count = df_ads_views_filt.groupby(['advertiser_id', 'product_id', 'type']).size().reset_index(name='cantidad')
@@ -97,18 +126,25 @@ def TopCTR (df_ads_views_filt, ds, **kwargs):
     df_top20_CTR['fecha_recom'] = fecha_hoy #pd.to_datetime(pd.Timestamp.today().date()).strftime('%Y-%m-%d')
 
     df_top20_CTR.to_csv(location+"/Processed/TopCTR.csv", index=False)
+    
+    s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20_CTR.csv', Body=df_top20_CTR.to_csv(index=False))#.encode('utf-8'))
 
     return 
 
 
-def DBWritting(df_topCTR, df_topProduct):
+def DBWritting(s3_object_df_top20, s3_object_df_top20_CTR):
+    obj = s3.get_object(Bucket = bucket_name, Key=s3_object_df_top20) #definimos el archivo a levantar
+    df_topProduct = pd.read_csv(obj['Body']) #levantamos el DF
     
-    df_topCTR = pd.read_csv(df_topCTR)
-    df_topProduct = pd.read_csv(df_topProduct)
+    obj = s3.get_object(Bucket = bucket_name, Key=s3_object_df_top20_CTR) #definimos el archivo a levantar
+    df_topCTR = pd.read_csv(obj['Body']) #levantamos el DF
+
+    s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20_CTR_final.csv', Body=df_topCTR.to_csv(index=False))#.encode('utf-8'))
+    s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20_CTR_final.csv', Body=df_topProduct.to_csv(index=False))#.encode('utf-8'))
     
 
-    df_topCTR.to_csv(location + '/RDS/df_topCTR.csv', index=False)
-    df_topProduct.to_csv(location + '/RDS/df_topProduct.csv', index=False)
+    #df_topCTR.to_csv(location + '/RDS/df_topCTR.csv', index=False)
+    #df_topProduct.to_csv(location + '/RDS/df_topProduct.csv', index=False)
 
     return 
 
@@ -159,5 +195,5 @@ with DAG(
 
 #Dependencias
 FiltrarDatos >> TopCTR
-FiltrarDatos >> TopProduct
-[TopCTR, TopProduct] >> DBWritting
+#FiltrarDatos >> TopProduct
+#[TopCTR, TopProduct] >> DBWritting
