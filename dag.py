@@ -56,8 +56,6 @@ def FiltrarDatos(s3_object_advertiser_ids, s3_object_ads_views, s3_object_produc
   df_ads_views = df_ads_views[df_ads_views['advertiser_id'].isin(df_advertiser_ids['advertiser_id'])] 
 
   #Guardamos los DF filtrados
-  #df_product_views.to_csv(location+"/Processed/product_views_filt.csv", index=False)
-  #df_ads_views.to_csv(location+"/Processed/ads_views_filt.csv", index=False)
 
   s3.put_object(Bucket=bucket_name, Key='Data/Processed/product_views_filt.csv', Body=df_product_views.to_csv(index=False))#.encode('utf-8'))
   s3.put_object(Bucket=bucket_name, Key='Data/Processed/ads_views_filt.csv', Body=df_ads_views.to_csv(index=False))#.encode('utf-8'))
@@ -91,7 +89,6 @@ def TopProduct(s3_object_product_views_filt, ds, **kwargs):
     fecha_hoy =   datetime.datetime.strptime(ds, '%Y-%m-%d')
 
     df_top20['fecha_recom'] = fecha_hoy 
-    df_top20.to_csv(location+"/Processed/TopProduct.csv", index=False)
     s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20.csv', Body=df_top20.to_csv(index=False))#.encode('utf-8'))
 
     return 
@@ -124,8 +121,6 @@ def TopCTR (s3_object_ads_views_filt, ds, **kwargs):
     #Creamos una columna con la fecha de recomendacion
     fecha_hoy =   datetime.datetime.strptime(ds, '%Y-%m-%d')
     df_top20_CTR['fecha_recom'] = fecha_hoy #pd.to_datetime(pd.Timestamp.today().date()).strftime('%Y-%m-%d')
-
-    df_top20_CTR.to_csv(location+"/Processed/TopCTR.csv", index=False)
     
     s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20_CTR.csv', Body=df_top20_CTR.to_csv(index=False))#.encode('utf-8'))
 
@@ -142,20 +137,7 @@ def DBWritting(s3_object_df_top20, s3_object_df_top20_CTR):
     s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20_CTR_final.csv', Body=df_topCTR.to_csv(index=False))#.encode('utf-8'))
     s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20_Product_final.csv', Body=df_topProduct.to_csv(index=False))#.encode('utf-8'))
     
-
-    #df_topCTR.to_csv(location + '/RDS/df_topCTR.csv', index=False)
-    #df_topProduct.to_csv(location + '/RDS/df_topProduct.csv', index=False)
-
     return 
-
-location = "/home/brian/airflow/dags/Data"
-df_ads_views = '/home/brian/airflow/dags/Data/Raw/ads_views.csv'
-df_advertiser_ids = '/home/brian/airflow/dags/Data/Raw/advertiser_ids.csv'
-df_product_views = '/home/brian/airflow/dags/Data/Raw/product_views.csv'
-df_ads_views_filt = '/home/brian/airflow/dags/Data/Processed/ads_views_filt.csv'
-df_product_views_filt = '/home/brian/airflow/dags/Data/Processed/product_views_filt.csv'
-df_topCTR = '/home/brian/airflow/dags/Data/Processed/TopCTR.csv'
-df_topProduct = '/home/brian/airflow/dags/Data/Processed/TopProduct.csv'
 
 #Definimos nuestro DAG y sus tareas.
 with DAG(
