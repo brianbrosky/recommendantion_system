@@ -17,7 +17,7 @@ conn = psycopg2.connect(
 
 cur = conn.cursor()
 cur.execute('create table top_20_ctr (adv_id varchar(50), product_id varchar(50), cantidad int, fecha_recom varchar(50))')
-cur.execute('create table top_20 (adv_id varchar(50), product_id varchar(50), click int, impression int, clickthroughrate float, fecha_recom varchar(50))')
+cur.execute('create table top_20 (adv_id varchar(50), product_id varchar(50), click int, impression int, clickthroughrate float(3), fecha_recom varchar(50))')
 
 conn.commit()
 
