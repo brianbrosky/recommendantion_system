@@ -127,16 +127,53 @@ def TopCTR (s3_object_ads_views_filt, ds, **kwargs):
     return 
 
 
-def DBWritting(s3_object_df_top20, s3_object_df_top20_CTR):
+def DBWriting(s3_object_df_top20, s3_object_df_top20_CTR):
     obj = s3.get_object(Bucket = bucket_name, Key=s3_object_df_top20) #definimos el archivo a levantar
     df_topProduct = pd.read_csv(obj['Body']) #levantamos el DF
     
     obj = s3.get_object(Bucket = bucket_name, Key=s3_object_df_top20_CTR) #definimos el archivo a levantar
     df_topCTR = pd.read_csv(obj['Body']) #levantamos el DF
 
-    s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20_CTR_final.csv', Body=df_topCTR.to_csv(index=False))#.encode('utf-8'))
-    s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20_Product_final.csv', Body=df_topProduct.to_csv(index=False))#.encode('utf-8'))
+    #s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20_CTR_final.csv', Body=df_topCTR.to_csv(index=False))#.encode('utf-8'))
+    #s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20_Product_final.csv', Body=df_topProduct.to_csv(index=False))#.encode('utf-8'))
+    #Enviando a RDS
+    import psycopg2
+    dbname = "recomendaciones"
+    user = "modelos" #Configuracion / Disponibilidad / nombre de usuario maestro
+    password = "Chavoloco23"
+    host = "database.crv8bjyoa2v8.us-east-1.rds.amazonaws.com" #Econectividad y seguridad
+    port = "5432"
+
+    #Creamos la conexión a RDS
+    conn = psycopg2.connect(
+        dbname=dbname,
+        user=user,
+        password=password,
+        host=host,
+        port=port
+    )
+
+    cur = conn.cursor()
+
+    # Poblar la tabla con los datos del dataframe
+    for index, row in df_topProduct.iterrows():
+        cur.execute(f"INSERT INTO top_20 (adv_id, product_id, click int, impression int, clickthroughrate, fecha_recom) VALUES (%s);", tuple(row))
+
+    # Confirmar los cambios
+    conn.commit()
+
+    # Poblar la tabla con los datos del dataframe
+    for index, row in df_topCTR.iterrows():
+        cur.execute(f"INSERT INTO top_20_ctr (adv_id, product_id, cantidad, fecha_recom) VALUES (%s);", tuple(row))
+
+    # Confirmar los cambios
+    conn.commit()
     
+    # Cerrar la conexión
+    cur.close()
+    conn.close()
+
+
     return 
 
 #Definimos nuestro DAG y sus tareas.
@@ -166,7 +203,7 @@ with DAG(
         op_kwargs = {"s3_object_product_views_filt" : s3_object_product_views_filt}
     )
 
-    DBWritting = PythonOperator(
+    DBWriting = PythonOperator(
         task_id='DBWritting',
         python_callable=DBWritting, #función definida arriba
         op_kwargs = {"s3_object_df_top20" : s3_object_df_top20,
@@ -177,4 +214,4 @@ with DAG(
 #Dependencias
 FiltrarDatos >> TopCTR
 FiltrarDatos >> TopProduct
-[TopCTR, TopProduct] >> DBWritting
+[TopCTR, TopProduct] >> DBWriting
