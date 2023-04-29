@@ -5,9 +5,9 @@ import boto3
 s3 = boto3.client("s3") #definimos un cliente para trabajar con S3 usando boto3
 bucket_name = "udesa-tp" #el nombre de nuestro bucket creado
 
-s3_object_advertiser_ids = "/Data/Raw/advertiser_ids.csv" #el archivo que vamos a traernos
-s3_object_ads_views = "/Data/Raw/ads_views.csv" #el archivo que vamos a traernos
-s3_object_product_views = "/Data/Raw/product_views.csv" #el archivo que vamos a traernos
+s3_object_advertiser_ids = "Data/Raw/advertiser_ids.csv" #el archivo que vamos a traernos
+s3_object_ads_views = "Data/Raw/ads_views.csv" #el archivo que vamos a traernos
+s3_object_product_views = "Data/Raw/product_views.csv" #el archivo que vamos a traernos
 
 ds='2023-04-29'
 
