@@ -59,8 +59,8 @@ def FiltrarDatos(s3_object_advertiser_ids, s3_object_ads_views, s3_object_produc
   #df_product_views.to_csv(location+"/Processed/product_views_filt.csv", index=False)
   #df_ads_views.to_csv(location+"/Processed/ads_views_filt.csv", index=False)
 
-  s3.put_object(Bucket=bucket_name, Key='/Data/Processed/product_views_filt.csv', Body=df_product_views)#.encode('utf-8'))
-  s3.put_object(Bucket=bucket_name, Key='/Data/Processed/ads_views_filt.csv', Body=df_ads_views)#.encode('utf-8'))
+  s3.put_object(Bucket=bucket_name, Key='/Data/Processed/product_views_filt.csv', Body=df_product_views.to_csv(index=False))#.encode('utf-8'))
+  s3.put_object(Bucket=bucket_name, Key='/Data/Processed/ads_views_filt.csv', Body=df_ads_views.to_csv(index=False))#.encode('utf-8'))
 
   print('GUARDADO EN S3')
   return
