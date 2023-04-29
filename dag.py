@@ -73,7 +73,7 @@ def TopProduct(s3_object_product_views_filt, ds, **kwargs):
     '''
     
     obj = s3.get_object(Bucket = bucket_name, Key=s3_object_product_views_filt) #definimos el archivo a levantar
-    df_advertiser_ids = pd.read_csv(obj['Body']) #levantamos el DF
+    df_product_views_filt = pd.read_csv(obj['Body']) #levantamos el DF
 
 
     #df_product_views_filt = pd.read_csv(df_product_views_filt)
@@ -100,7 +100,7 @@ def TopProduct(s3_object_product_views_filt, ds, **kwargs):
 def TopCTR (s3_object_ads_views_filt, ds, **kwargs):
     
     obj = s3.get_object(Bucket = bucket_name, Key=s3_object_ads_views_filt) #definimos el archivo a levantar
-    df_advertiser_ids = pd.read_csv(obj['Body']) #levantamos el DF
+    df_ads_views_filt = pd.read_csv(obj['Body']) #levantamos el DF
 
     
     # Agrupamos el DF por advertiser, producto y tipo para luego contar la cantidad de veces que aparece cada combinación
@@ -140,7 +140,7 @@ def DBWritting(s3_object_df_top20, s3_object_df_top20_CTR):
     df_topCTR = pd.read_csv(obj['Body']) #levantamos el DF
 
     s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20_CTR_final.csv', Body=df_topCTR.to_csv(index=False))#.encode('utf-8'))
-    s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20_CTR_final.csv', Body=df_topProduct.to_csv(index=False))#.encode('utf-8'))
+    s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20_Product_final.csv', Body=df_topProduct.to_csv(index=False))#.encode('utf-8'))
     
 
     #df_topCTR.to_csv(location + '/RDS/df_topCTR.csv', index=False)
