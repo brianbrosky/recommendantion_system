@@ -204,8 +204,8 @@ with DAG(
     )
 
     DBWriting = PythonOperator(
-        task_id='DBWritting',
-        python_callable=DBWritting, #función definida arriba
+        task_id='DBWriting',
+        python_callable=DBWriting, #función definida arriba
         op_kwargs = {"s3_object_df_top20" : s3_object_df_top20,
                      "s3_object_df_top20_CTR" : s3_object_df_top20_CTR}
     )
