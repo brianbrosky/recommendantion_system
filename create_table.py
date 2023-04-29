@@ -1,5 +1,5 @@
 import psycopg2
-dbname = "database"
+dbname = "recomendaciones"
 user = "modelos" #Configuracion / Disponibilidad / nombre de usuario maestro
 password = "Chavoloco23"
 host = "database.crv8bjyoa2v8.us-east-1.rds.amazonaws.com" #Econectividad y seguridad
