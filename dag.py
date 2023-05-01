@@ -79,9 +79,11 @@ def TopProduct(s3_object_product_views_filt, ds, **kwargs):
     #Agrupamos por advertiser y producto y contamos la cantidad de registros por cada combinación guardando el dato en la columna 'cantidad'
     df_count = df_product_views_filt.groupby(['advertiser_id', 'product_id']).size().reset_index(name='cantidad')
 
-    #Ordenamos el DF anterior en order ascendente de vendedores y y de mayor a menor en cuanto a la cantidad.
-    df_count_sorted = df_count.sort_values(['advertiser_id', 'cantidad'], ascending=[True, False])
-
+    #Ordenamos el DF anterior en order ascendente de vendedores, de mayor a menor cantidad para cada vendedor 
+    #y en orden ascendente de productos ante igualdad de cantidades dentro de cada vendedor.
+    df_count_sorted = df_count.sort_values(by=[ 'advertiser_id','cantidad', 'product_id'], ascending=[True, False, True])
+    #df_count_sorted = df_count.sort_values(['advertiser_id', 'cantidad'], ascending=[True, False])
+    
     #Con el DF ordenado agrupamos por advertiser y tomamos el top 20.
     df_top20 = df_count_sorted.groupby('advertiser_id').head(20)
     
