@@ -110,7 +110,7 @@ def TopCTR (s3_object_ads_views_filt, ds, **kwargs):
     df_filtered = df_pivoted[df_pivoted['click'] > 0]
     
     # Calculamos la tasa de click para cada combinación de advertiser-product
-    df_filtered['click-through-rate'] = df_filtered['click'] / df_pivoted['impression']
+    df_filtered['click-through-rate'] = df_filtered['click'] / (df_pivoted['impression'] + df_filtered['click'])
 
     # Ordenamos el DF por advertiser en forma ascendente y rate descendente.
     df_sorted = df_filtered.sort_values(['advertiser_id', 'click-through-rate'], ascending=[True, False])
