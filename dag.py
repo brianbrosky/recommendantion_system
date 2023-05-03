@@ -205,15 +205,15 @@ with DAG(
         op_kwargs = {"s3_object_product_views_filt" : s3_object_product_views_filt}
     )
 
-    DBWriting = PythonOperator(
-        task_id='DBWriting',
-        python_callable=DBWriting, #función definida arriba
-        op_kwargs = {"s3_object_df_top20" : s3_object_df_top20,
-                     "s3_object_df_top20_CTR" : s3_object_df_top20_CTR}
-    )
+    #DBWriting = PythonOperator(
+    #    task_id='DBWriting',
+    #    python_callable=DBWriting, #función definida arriba
+    #    op_kwargs = {"s3_object_df_top20" : s3_object_df_top20,
+    #                 "s3_object_df_top20_CTR" : s3_object_df_top20_CTR}
+    #)
 
 
 #Dependencias
 FiltrarDatos >> TopCTR
 FiltrarDatos >> TopProduct
-[TopCTR, TopProduct] >> DBWriting
+#[TopCTR, TopProduct] >> DBWriting
