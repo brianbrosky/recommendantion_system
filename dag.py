@@ -160,14 +160,16 @@ def DBWriting(s3_object_df_top20, s3_object_df_top20_CTR):
 
     # Poblar la tabla con los datos del dataframe
     for index, row in df_topProduct.iterrows():
-        cur.execute(f"INSERT INTO top_20 (adv_id, product_id, click int, impression int, clickthroughrate, fecha_recom) VALUES (%s);", tuple(row))
+        #cur.execute(f"INSERT INTO top_20 (adv_id, product_id, click int, impression int, clickthroughrate, fecha_recom) VALUES (%s);", tuple(row))
+        cur.execute("INSERT INTO top_20 (adv_id, product_id, click, impression, clickthroughrate, fecha_recom) VALUES (%(adv_id)s, %(product_id)s, %(click)s, %(impression)s, %(clickthroughrate)s, %(fecha_recom)s);", row.to_dict())
 
     # Confirmar los cambios
     conn.commit()
 
     # Poblar la tabla con los datos del dataframe
     for index, row in df_topCTR.iterrows():
-        cur.execute(f"INSERT INTO top_20_ctr (adv_id, product_id, cantidad, fecha_recom) VALUES (%s);", tuple(row))
+        #cur.execute(f"INSERT INTO top_20_ctr (adv_id, product_id, cantidad, fecha_recom) VALUES (%s);", tuple(row))
+        cur.execute("INSERT INTO top_20_ctr (adv_id, product_id, cantidad, fecha_recom) VALUES (%s, %s, %s, %s);", (row['adv_id'], row['product_id'], row['cantidad'], row['fecha_recom']))
 
     # Confirmar los cambios
     conn.commit()
