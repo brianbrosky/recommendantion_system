@@ -5,20 +5,20 @@ from airflow.operators.python import PythonOperator
 import pandas as pd
 import boto3
 
-# # instanciamos los objetos de s3
-# s3 = boto3.client("s3") #definimos un cliente para trabajar con S3 usando boto3
-# bucket_name = "udesa-tp" #el nombre de nuestro bucket creado
+# instanciamos los objetos de s3
+s3 = boto3.client("s3") #definimos un cliente para trabajar con S3 usando boto3
+bucket_name = "udesa-tp" #el nombre de nuestro bucket creado
 
 
-# s3_object_advertiser_ids = "Data/Raw/advertiser_ids.csv" #el archivo que vamos a traernos
-# s3_object_ads_views = "Data/Raw/ads_views.csv" #el archivo que vamos a traernos
-# s3_object_product_views = "Data/Raw/product_views.csv" #el archivo que vamos a traernos
+s3_object_advertiser_ids = "Data/Raw/advertiser_ids.csv" #el archivo que vamos a traernos
+s3_object_ads_views = "Data/Raw/ads_views.csv" #el archivo que vamos a traernos
+s3_object_product_views = "Data/Raw/product_views.csv" #el archivo que vamos a traernos
 
-# s3_object_product_views_filt = "Data/Processed/product_views_filt.csv"
-# s3_object_ads_views_filt = "Data/Processed/ads_views_filt.csv"
+s3_object_product_views_filt = "Data/Processed/product_views_filt.csv"
+s3_object_ads_views_filt = "Data/Processed/ads_views_filt.csv"
 
-# s3_object_df_top20 = "Data/Processed/df_top20.csv"
-# s3_object_df_top20_CTR = "Data/Processed/df_top20_CTR.csv"
+s3_object_df_top20 = "Data/Processed/df_top20.csv"
+s3_object_df_top20_CTR = "Data/Processed/df_top20_CTR.csv"
 
 
 
