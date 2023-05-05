@@ -20,7 +20,7 @@ cur = conn.cursor()
 #cur.execute('create table top_20 (adv_id varchar(50), product_id varchar(50), click int, impression int, clickthroughrate float(3), fecha_recom timestamp)')
 #cur.execute('alter table top_20 alter column fecha_recom type timestamp without time zone using fecha_recom::timestamp without time zone')
 #cur.execute('alter table top_20 alter column fecha_recom type timestamp without time zone using fecha_recom::timestamp without time zone')
-cur.execute('describe top_20')
+cur.execute('select column_name, data_type from information_schema.columns where table_name = "top_20"')
 
 
 
