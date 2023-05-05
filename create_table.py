@@ -21,16 +21,8 @@ cur.execute('create table top_20 (adv_id varchar(50), product_id varchar(50), cl
 #cur.execute('alter table top_20 alter column fecha_recom type timestamp without time zone using fecha_recom::timestamp without time zone')
 #cur.execute('alter table top_20 alter column fecha_recom type timestamp without time zone using fecha_recom::timestamp without time zone')
 
-
 conn.commit()
 
 # Cerrar la conexión
 cur.close()
 conn.close()
-
-
-
-
-
-
-
