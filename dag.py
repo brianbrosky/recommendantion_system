@@ -64,122 +64,122 @@ s3_object_df_top20_CTR = "Data/Processed/df_top20_CTR.csv"
 #   return
 
 
-def TopProduct(s3_object_product_views_filt, ds, **kwargs):
-    '''
-    Esta función toma las vistas de productos ya filtradas y por cada advertiser
-    se queda con el top 20 de productos vistos
-    '''
+# def TopProduct(s3_object_product_views_filt, ds, **kwargs):
+#     '''
+#     Esta función toma las vistas de productos ya filtradas y por cada advertiser
+#     se queda con el top 20 de productos vistos
+#     '''
     
-    obj = s3.get_object(Bucket = bucket_name, Key=s3_object_product_views_filt) #definimos el archivo a levantar
-    df_product_views_filt = pd.read_csv(obj['Body']) #levantamos el DF
+#     obj = s3.get_object(Bucket = bucket_name, Key=s3_object_product_views_filt) #definimos el archivo a levantar
+#     df_product_views_filt = pd.read_csv(obj['Body']) #levantamos el DF
 
 
-    #df_product_views_filt = pd.read_csv(df_product_views_filt)
+#     #df_product_views_filt = pd.read_csv(df_product_views_filt)
     
-    #Agrupamos por advertiser y producto y contamos la cantidad de registros por cada combinación guardando el dato en la columna 'cantidad'
-    df_count = df_product_views_filt.groupby(['advertiser_id', 'product_id']).size().reset_index(name='cantidad')
+#     #Agrupamos por advertiser y producto y contamos la cantidad de registros por cada combinación guardando el dato en la columna 'cantidad'
+#     df_count = df_product_views_filt.groupby(['advertiser_id', 'product_id']).size().reset_index(name='cantidad')
 
-    #Ordenamos el DF anterior en order ascendente de vendedores y de mayor a menor en cuanto a la cantidad.
-    #No ordenamos por producto a igualdad de cantidades para obtener cierta aleatoriedad.
-    df_count_sorted = df_count.sort_values(['advertiser_id', 'cantidad'], ascending=[True, False])
-    #df_count_sorted = df_count.sort_values(by=[ 'advertiser_id','cantidad', 'product_id'], ascending=[True, False, True])
+#     #Ordenamos el DF anterior en order ascendente de vendedores y de mayor a menor en cuanto a la cantidad.
+#     #No ordenamos por producto a igualdad de cantidades para obtener cierta aleatoriedad.
+#     df_count_sorted = df_count.sort_values(['advertiser_id', 'cantidad'], ascending=[True, False])
+#     #df_count_sorted = df_count.sort_values(by=[ 'advertiser_id','cantidad', 'product_id'], ascending=[True, False, True])
     
-    #Con el DF ordenado agrupamos por advertiser y tomamos el top 20.
-    df_top20 = df_count_sorted.groupby('advertiser_id').head(20)
+#     #Con el DF ordenado agrupamos por advertiser y tomamos el top 20.
+#     df_top20 = df_count_sorted.groupby('advertiser_id').head(20)
     
-    #Creamos una columna con la fecha de recomendacion
-    fecha_hoy =   datetime.strptime(ds, '%Y-%m-%d')
+#     #Creamos una columna con la fecha de recomendacion
+#     fecha_hoy =   datetime.strptime(ds, '%Y-%m-%d')
 
-    df_top20['fecha_recom'] = fecha_hoy 
-    s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20.csv', Body=df_top20.to_csv(index=False))#.encode('utf-8'))
-
-    return 
-
-
-def TopCTR (s3_object_ads_views_filt, ds, **kwargs):
-    
-    obj = s3.get_object(Bucket = bucket_name, Key=s3_object_ads_views_filt) #definimos el archivo a levantar
-    df_ads_views_filt = pd.read_csv(obj['Body']) #levantamos el DF
-
-    
-    # Agrupamos el DF por advertiser, producto y tipo para luego contar la cantidad de veces que aparece cada combinación
-    df_count = df_ads_views_filt.groupby(['advertiser_id', 'product_id', 'type']).size().reset_index(name='cantidad')
-
-    # Pivoteamos el DF para tener una fila por cada combinación de adviser-producto y columnas para la cantidad de vistas y clicks
-    df_pivoted = df_count.pivot_table(index=['advertiser_id', 'product_id'], columns='type', values='cantidad', fill_value=0).reset_index()
-
-    # Filtramos el DF para eliminar combinaciones donde no hay clicks
-    df_filtered = df_pivoted[df_pivoted['click'] > 0]
-    
-    # Calculamos la tasa de click para cada combinación de advertiser-product
-    df_filtered['click-through-rate'] = df_filtered['click'] / (df_pivoted['impression'] + df_filtered['click'])
-
-    # Ordenamos el DF por advertiser en forma ascendente y rate descendente.
-    df_sorted = df_filtered.sort_values(['advertiser_id', 'click-through-rate'], ascending=[True, False])
-
-    # Agrupamos el DF por advertiser y tomamos los top 20 productos con mejor tasa para cada advertiser.
-    df_top20_CTR = df_sorted.groupby('advertiser_id').head(20)
-    
-    #Creamos una columna con la fecha de recomendacion
-    fecha_hoy =   datetime.strptime(ds, '%Y-%m-%d')
-    df_top20_CTR['fecha_recom'] = fecha_hoy #pd.to_datetime(pd.Timestamp.today().date()).strftime('%Y-%m-%d')
-    
-    s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20_CTR.csv', Body=df_top20_CTR.to_csv(index=False))#.encode('utf-8'))
-
-    return 
-
-
-# def DBWriting(s3_object_df_top20, s3_object_df_top20_CTR):
-#     obj = s3.get_object(Bucket = bucket_name, Key=s3_object_df_top20) #definimos el archivo a levantar
-#     df_topProduct = pd.read_csv(obj['Body']) #levantamos el DF
-    
-#     obj = s3.get_object(Bucket = bucket_name, Key=s3_object_df_top20_CTR) #definimos el archivo a levantar
-#     df_topCTR = pd.read_csv(obj['Body']) #levantamos el DF
-
-#     #s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20_CTR_final.csv', Body=df_topCTR.to_csv(index=False))#.encode('utf-8'))
-#     #s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20_Product_final.csv', Body=df_topProduct.to_csv(index=False))#.encode('utf-8'))
-    
-#     #Enviando a RDS
-#     import psycopg2
-#     dbname = "recomendaciones"
-#     user = "modelos" #Configuracion / Disponibilidad / nombre de usuario maestro
-#     password = "Chavoloco23"
-#     host = "database.crv8bjyoa2v8.us-east-1.rds.amazonaws.com" #Econectividad y seguridad
-#     port = "5432"
-
-#     #Creamos la conexión a RDS
-#     conn = psycopg2.connect(
-#         dbname=dbname,
-#         user=user,
-#         password=password,
-#         host=host,
-#         port=port
-#     )
-
-#     cur = conn.cursor()
-
-#     # Poblar la tabla con los datos del dataframe
-#     for index, row in df_topCTR.iterrows():
-#         #cur.execute(f"INSERT INTO top_20_ctr (adv_id, product_id, click, impression, clickthroughrate, fecha_recom) VALUES (%s);", tuple(row))
-#         cur.execute("INSERT INTO top_20_ctr (adv_id, product_id, click, impression, clickthroughrate, fecha_recom) VALUES (%(advertiser_id)s, %(product_id)s, %(click)s, %(impression)s, %(click-through-rate)s, %(fecha_recom)s);", row.to_dict())
-
-#     # Confirmar los cambios
-#     conn.commit()
-
-#     # Poblar la tabla con los datos del dataframe
-#     for index, row in df_topProduct.iterrows():
-#         #cur.execute(f"INSERT INTO top_20 (adv_id, product_id, cantidad, fecha_recom) VALUES (%s);", tuple(row))
-#         cur.execute("INSERT INTO top_20 (adv_id, product_id, cantidad, fecha_recom) VALUES (%(advertiser_id)s, %(product_id)s, %(cantidad)s, %(fecha_recom)s);", row.to_dict())
-
-#     # Confirmar los cambios
-#     conn.commit()
-    
-#     # Cerrar la conexión
-#     cur.close()
-#     conn.close()
-
+#     df_top20['fecha_recom'] = fecha_hoy 
+#     s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20.csv', Body=df_top20.to_csv(index=False))#.encode('utf-8'))
 
 #     return 
+
+
+# def TopCTR (s3_object_ads_views_filt, ds, **kwargs):
+    
+#     obj = s3.get_object(Bucket = bucket_name, Key=s3_object_ads_views_filt) #definimos el archivo a levantar
+#     df_ads_views_filt = pd.read_csv(obj['Body']) #levantamos el DF
+
+    
+#     # Agrupamos el DF por advertiser, producto y tipo para luego contar la cantidad de veces que aparece cada combinación
+#     df_count = df_ads_views_filt.groupby(['advertiser_id', 'product_id', 'type']).size().reset_index(name='cantidad')
+
+#     # Pivoteamos el DF para tener una fila por cada combinación de adviser-producto y columnas para la cantidad de vistas y clicks
+#     df_pivoted = df_count.pivot_table(index=['advertiser_id', 'product_id'], columns='type', values='cantidad', fill_value=0).reset_index()
+
+#     # Filtramos el DF para eliminar combinaciones donde no hay clicks
+#     df_filtered = df_pivoted[df_pivoted['click'] > 0]
+    
+#     # Calculamos la tasa de click para cada combinación de advertiser-product
+#     df_filtered['click-through-rate'] = df_filtered['click'] / (df_pivoted['impression'] + df_filtered['click'])
+
+#     # Ordenamos el DF por advertiser en forma ascendente y rate descendente.
+#     df_sorted = df_filtered.sort_values(['advertiser_id', 'click-through-rate'], ascending=[True, False])
+
+#     # Agrupamos el DF por advertiser y tomamos los top 20 productos con mejor tasa para cada advertiser.
+#     df_top20_CTR = df_sorted.groupby('advertiser_id').head(20)
+    
+#     #Creamos una columna con la fecha de recomendacion
+#     fecha_hoy =   datetime.strptime(ds, '%Y-%m-%d')
+#     df_top20_CTR['fecha_recom'] = fecha_hoy #pd.to_datetime(pd.Timestamp.today().date()).strftime('%Y-%m-%d')
+    
+#     s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20_CTR.csv', Body=df_top20_CTR.to_csv(index=False))#.encode('utf-8'))
+
+#     return 
+
+
+def DBWriting(s3_object_df_top20, s3_object_df_top20_CTR):
+    obj = s3.get_object(Bucket = bucket_name, Key=s3_object_df_top20) #definimos el archivo a levantar
+    df_topProduct = pd.read_csv(obj['Body']) #levantamos el DF
+    
+    obj = s3.get_object(Bucket = bucket_name, Key=s3_object_df_top20_CTR) #definimos el archivo a levantar
+    df_topCTR = pd.read_csv(obj['Body']) #levantamos el DF
+
+    #s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20_CTR_final.csv', Body=df_topCTR.to_csv(index=False))#.encode('utf-8'))
+    #s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20_Product_final.csv', Body=df_topProduct.to_csv(index=False))#.encode('utf-8'))
+    
+    #Enviando a RDS
+    import psycopg2
+    dbname = "recomendaciones"
+    user = "modelos" #Configuracion / Disponibilidad / nombre de usuario maestro
+    password = "Chavoloco23"
+    host = "database.crv8bjyoa2v8.us-east-1.rds.amazonaws.com" #Econectividad y seguridad
+    port = "5432"
+
+    #Creamos la conexión a RDS
+    conn = psycopg2.connect(
+        dbname=dbname,
+        user=user,
+        password=password,
+        host=host,
+        port=port
+    )
+
+    cur = conn.cursor()
+
+    # Poblar la tabla con los datos del dataframe
+    for index, row in df_topCTR.iterrows():
+        #cur.execute(f"INSERT INTO top_20_ctr (adv_id, product_id, click, impression, clickthroughrate, fecha_recom) VALUES (%s);", tuple(row))
+        cur.execute("INSERT INTO top_20_ctr (adv_id, product_id, click, impression, clickthroughrate, fecha_recom) VALUES (%(advertiser_id)s, %(product_id)s, %(click)s, %(impression)s, %(click-through-rate)s, %(fecha_recom)s);", row.to_dict())
+
+    # Confirmar los cambios
+    conn.commit()
+
+    # Poblar la tabla con los datos del dataframe
+    for index, row in df_topProduct.iterrows():
+        #cur.execute(f"INSERT INTO top_20 (adv_id, product_id, cantidad, fecha_recom) VALUES (%s);", tuple(row))
+        cur.execute("INSERT INTO top_20 (adv_id, product_id, cantidad, fecha_recom) VALUES (%(advertiser_id)s, %(product_id)s, %(cantidad)s, %(fecha_recom)s);", row.to_dict())
+
+    # Confirmar los cambios
+    conn.commit()
+    
+    # Cerrar la conexión
+    cur.close()
+    conn.close()
+
+
+    return 
 
 #Definimos nuestro DAG y sus tareas.
 with DAG(
@@ -197,24 +197,24 @@ with DAG(
 #                     "s3_object_product_views":s3_object_product_views}
 #     )
 
-    TopCTR = PythonOperator(
-        task_id='TopCTR',
-        python_callable=TopCTR, #función definida arriba
-        op_kwargs = {"s3_object_ads_views_filt" : s3_object_ads_views_filt}
-    )
-
-    TopProduct = PythonOperator(
-        task_id='TopProduct',
-        python_callable=TopProduct, #función definida arriba
-        op_kwargs = {"s3_object_product_views_filt" : s3_object_product_views_filt}
-    )
-
-#     DBWriting = PythonOperator(
-#        task_id='DBWriting',
-#        python_callable=DBWriting, #función definida arriba
-#        op_kwargs = {"s3_object_df_top20" : s3_object_df_top20,
-#                     "s3_object_df_top20_CTR" : s3_object_df_top20_CTR}
+#     TopCTR = PythonOperator(
+#         task_id='TopCTR',
+#         python_callable=TopCTR, #función definida arriba
+#         op_kwargs = {"s3_object_ads_views_filt" : s3_object_ads_views_filt}
 #     )
+
+#     TopProduct = PythonOperator(
+#         task_id='TopProduct',
+#         python_callable=TopProduct, #función definida arriba
+#         op_kwargs = {"s3_object_product_views_filt" : s3_object_product_views_filt}
+#     )
+
+    DBWriting = PythonOperator(
+       task_id='DBWriting',
+       python_callable=DBWriting, #función definida arriba
+       op_kwargs = {"s3_object_df_top20" : s3_object_df_top20,
+                    "s3_object_df_top20_CTR" : s3_object_df_top20_CTR}
+    )
 
 
 # #Dependencias
