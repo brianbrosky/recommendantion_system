@@ -17,8 +17,8 @@ s3_object_df_top20_CTR = "Data/Processed/df_top20_CTR.csv"
 # print(df_topCTR.dtypes)
     
     
-obj = s3.get_object(Bucket = bucket_name, Key=s3_object_df_top20) #definimos el archivo a levantar
-df_topProduct = pd.read_csv(obj['Body']) #levantamos el DF
+# obj = s3.get_object(Bucket = bucket_name, Key=s3_object_df_top20) #definimos el archivo a levantar
+# df_topProduct = pd.read_csv(obj['Body']) #levantamos el DF
     
 obj = s3.get_object(Bucket = bucket_name, Key=s3_object_df_top20_CTR) #definimos el archivo a levantar
 df_topCTR = pd.read_csv(obj['Body']) #levantamos el DF
@@ -53,12 +53,12 @@ for index, row in df_topCTR.iterrows():
 conn.commit()
 
     # Poblar la tabla con los datos del dataframe
-for index, row in df_topProduct.iterrows():
-    cur.execute(f"INSERT INTO top_20 (adv_id, product_id, cantidad, fecha_recom) VALUES (%s);", tuple(row))
-        #cur.execute("INSERT INTO top_20_ctr (adv_id, product_id, cantidad, fecha_recom) VALUES (%s, %s, %s, %s);", (row['adv_id'], row['product_id'], row['cantidad'], row['fecha_recom']))
+# for index, row in df_topProduct.iterrows():
+#     cur.execute(f"INSERT INTO top_20 (adv_id, product_id, cantidad, fecha_recom) VALUES (%s);", tuple(row))
+#         #cur.execute("INSERT INTO top_20_ctr (adv_id, product_id, cantidad, fecha_recom) VALUES (%s, %s, %s, %s);", (row['adv_id'], row['product_id'], row['cantidad'], row['fecha_recom']))
 
     # Confirmar los cambios
-conn.commit()
+# conn.commit()
     
     # Cerrar la conexión
 cur.close()
