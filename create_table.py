@@ -20,10 +20,12 @@ cur = conn.cursor()
 #cur.execute('create table top_20 (adv_id varchar(50), product_id varchar(50), click int, impression int, clickthroughrate float(3), fecha_recom varchar(50))')
 # cur.execute('alter table top_20 alter column fecha_recom type varchar(50)')
 # cur.execute('alter table top_20_ctr alter column fecha_recom type varchar(50)')
-
-cur.execute("select column_name, data_type from information_schema.columns where table_name = 'top_20_ctr'")
-for column_name, data_type in cur.fetchall():
-    print(column_name, data_type)
+cur.execute('alter table top_20_ctr rename to top_20_prod')
+cur.execute('alter table top_20 rename to top_20_ctr')
+cur.execute('alter table top_20_prod rename to top_20')
+# cur.execute("select column_name, data_type from information_schema.columns where table_name = 'top_20_ctr'")
+# for column_name, data_type in cur.fetchall():
+#     print(column_name, data_type)
 
 # cur.execute('select * from top_20_ctr') 
 # rows = cur.fetchall()
