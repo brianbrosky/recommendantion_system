@@ -46,8 +46,9 @@ cur = conn.cursor()
 
     # Poblar la tabla con los datos del dataframe
 for index, row in df_topCTR.iterrows():
-    cur.execute(f"INSERT INTO top_20_ctr (adv_id, product_id, click, impression, clickthroughrate, fecha_recom) VALUES (%s);", tuple(row))
-        #cur.execute("INSERT INTO top_20 (adv_id, product_id, click, impression, clickthroughrate, fecha_recom) VALUES (%(adv_id)s, %(product_id)s, %(click)s, %(impression)s, %(clickthroughrate)s, %(fecha_recom)s);", row.to_dict())
+    #cur.execute(f"INSERT INTO top_20_ctr (adv_id, product_id, click, impression, clickthroughrate, fecha_recom) VALUES (%s);", tuple(row))
+    cur.execute("INSERT INTO top_20 (adv_id, product_id, click, impression, clickthroughrate, fecha_recom) VALUES (%(adv_id)s, %(product_id)s, %(click)s, %(impression)s, %(clickthroughrate)s, %(fecha_recom)s);", row.to_dict())
+    #cur.execute("INSERT INTO top_20 (adv_id, product_id, click, impression, clickthroughrate, fecha_recom) VALUES (%(adv_id)s, %(product_id)s, %(click)s, %(impression)s, %(clickthroughrate)s, %(fecha_recom)s);", row.to_dict())
 
     # Confirmar los cambios
 conn.commit()
