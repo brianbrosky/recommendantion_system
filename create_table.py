@@ -25,7 +25,7 @@ cur = conn.cursor()
 #for column_name, data_type in cur.fetchall():
 #    print(column_name, data_type)
 
-cur.execute('select * top_20_ctr') 
+cur.execute('select * from top_20_ctr') 
 rows = cur.fetchall()
 for row in rows:
     print(row)
