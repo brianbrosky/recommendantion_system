@@ -31,7 +31,10 @@ cur = conn.cursor()
 
 
 #BORRAR REGISTROS
-#cur.execute('delete from top_20_ctr')
+cur.execute('delete from top_20_ctr')
+conn.commit()
+cur.execute('delete from top_20')
+conn.commit()
 
 #SELECT PARA VER REGISTROS
 cur.execute('select * from top_20') 
