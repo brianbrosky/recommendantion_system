@@ -31,18 +31,22 @@ cur = conn.cursor()
 
 
 #BORRAR REGISTROS
-cur.execute('delete from top_20_ctr')
+#cur.execute('delete from top_20_ctr')
 
 #SELECT PARA VER REGISTROS
+cur.execute('select * from top_20') 
+rows = cur.fetchall()
+for row in rows:
+    print(row)
+
+conn.commit()
+
 cur.execute('select * from top_20_ctr') 
 rows = cur.fetchall()
 for row in rows:
     print(row)
     
-    
-    
 conn.commit()
-
 # Cerrar la conexión
 cur.close()
 conn.close()
