@@ -184,10 +184,10 @@ def DBWriting(s3_object_df_top20, s3_object_df_top20_CTR):
 #Definimos nuestro DAG y sus tareas.
 with DAG(
     dag_id = 'Recomendar',
-    schedule_interval= '0 0 * * *', #se ejecuta a las 00:00 todos los días, todas las semanas, todos los meses
+    schedule_interval= '0 1 * * *', #se ejecuta a las 01:00 todos los días, todas las semanas, todos los meses
     start_date=datetime(2022,4,1),
     catchup=False,
-    dagrun_timeout=timedelta(minutes=60)
+    #dagrun_timeout=timedelta(minutes=60)
 ) as dag:
     FiltrarDatos = PythonOperator(
         task_id='Filtro',
