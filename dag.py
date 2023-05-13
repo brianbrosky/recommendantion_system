@@ -38,14 +38,12 @@ def FiltrarDatos(s3_object_advertiser_ids, s3_object_ads_views, s3_object_produc
 
   obj = s3.get_object(Bucket = bucket_name, Key=s3_object_product_views) #definimos el archivo a levantar
   df_product_views = pd.read_csv(obj['Body']) #levantamos el DF
-  
-  
 
-  fecha_ayer =  datetime.strptime(ds, '%Y-%m-%d') - timedelta(days=1)
+  fecha_ayer =  kwargs['execution_date'].date() - timedelta(days=1)
   
   #convertimos los campos date en datetime
-  df_product_views['date'] = pd.to_datetime(df_product_views['date'])
-  df_ads_views['date'] = pd.to_datetime(df_ads_views['date'])
+  df_product_views['date'] = pd.to_datetime(df_product_views['date']).dt.date
+  df_ads_views['date'] = pd.to_datetime(df_ads_views['date']).dt.date
   
   #filtramos los dataframes para quedarnos con los datos antiguos a la fecha de hoy
   df_product_views = df_product_views[df_product_views['date']==fecha_ayer]
@@ -88,7 +86,7 @@ def TopProduct(s3_object_product_views_filt, ds, **kwargs):
     df_top20 = df_count_sorted.groupby('advertiser_id').head(20)
     
     #Creamos una columna con la fecha de recomendacion
-    fecha_hoy =   datetime.strptime(ds, '%Y-%m-%d')
+    fecha_hoy =   kwargs['execution_date'].date()
 
     df_top20['fecha_recom'] = fecha_hoy 
     s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20.csv', Body=df_top20.to_csv(index=False))#.encode('utf-8'))
