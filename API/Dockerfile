@@ -1,16 +1,19 @@
 FROM python:3.9-slim-bullseye
 
-# Copia el código fuente de tu API en el contenedor
-COPY . /app
-
-# Establece el directorio de trabajo en el directorio de la aplicación
+# Definimos working directory
 WORKDIR /app
 
-# Instala las dependencias necesarias
+# Copiamos txt que contiene los paquetes necesarios
+COPY ./requirements.txt .
+
+# Instalamos los paquetes necesarios
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expone el puerto que utilizará tu API
-EXPOSE 80
+# Copiamos el código al container
+COPY ./app .
 
-# Define el comando para ejecutar tu API
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+# Exponemos el puerto
+EXPOSE 8000
+
+# Levantamos FastAPI usando uvicorn
+CMD uvicorn main:app --host 0.0.0.0 --port 8000
