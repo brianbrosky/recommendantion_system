@@ -187,32 +187,32 @@ with DAG(
     catchup=False,
     #dagrun_timeout=timedelta(minutes=60)
 ) as dag:
-    FiltrarDatos = PythonOperator(
-        task_id='Filtro',
-        python_callable=FiltrarDatos, #función definida arriba
-        op_kwargs = {"s3_object_advertiser_ids" : s3_object_advertiser_ids,
-                    "s3_object_ads_views": s3_object_ads_views,
-                    "s3_object_product_views":s3_object_product_views}
-    )
+  FiltrarDatos = PythonOperator(
+    task_id='Filtro',
+    python_callable=FiltrarDatos, #función definida arriba
+    op_kwargs = {"s3_object_advertiser_ids" : s3_object_advertiser_ids,
+                 "s3_object_ads_views": s3_object_ads_views,
+                 "s3_object_product_views":s3_object_product_views}
+  )
 
-    TopCTR = PythonOperator(
-        task_id='TopCTR',
-        python_callable=TopCTR, #función definida arriba
-        op_kwargs = {"s3_object_ads_views_filt" : s3_object_ads_views_filt}
-    )
+  TopCTR = PythonOperator(
+    task_id='TopCTR',
+    python_callable=TopCTR, #función definida arriba
+    op_kwargs = {"s3_object_ads_views_filt" : s3_object_ads_views_filt}
+  )
 
-    TopProduct = PythonOperator(
-        task_id='TopProduct',
-        python_callable=TopProduct, #función definida arriba
-        op_kwargs = {"s3_object_product_views_filt" : s3_object_product_views_filt}
-    )
+  TopProduct = PythonOperator(
+    task_id='TopProduct',
+    python_callable=TopProduct, #función definida arriba
+    op_kwargs = {"s3_object_product_views_filt" : s3_object_product_views_filt}
+  )
 
-    DBWriting = PythonOperator(
-       task_id='DBWriting',
-       python_callable=DBWriting, #función definida arriba
-       op_kwargs = {"s3_object_df_top20" : s3_object_df_top20,
-                    "s3_object_df_top20_CTR" : s3_object_df_top20_CTR}
-    )
+  DBWriting = PythonOperator(
+    task_id='DBWriting',
+    python_callable=DBWriting, #función definida arriba
+    op_kwargs = {"s3_object_df_top20" : s3_object_df_top20,
+                 "s3_object_df_top20_CTR" : s3_object_df_top20_CTR}
+  )
 
 
 # #Dependencias
