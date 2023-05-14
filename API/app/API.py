@@ -101,7 +101,7 @@ async def run_query_7_días(adv_id: str):
             message = f"No existe el advertiser {adv_id} en nuestra base." #NUEVO
             raise HTTPException(status_code=404, detail=message)
         else:
-            response["top_20"] = f"No se encontraron resultados para el advertiser {adv_id}, en el modelo top_20 para el periodo del {fecha_inicio} al {fecha_final}"
+            message =  f"No se encontraron resultados para el advertiser {adv_id}, en el modelo top_20 para el periodo del {fecha_inicio} al {fecha_final}"
             raise HTTPException(status_code=202, detail=message)
     else:
         response["top_20"] = top_20_rows
@@ -111,7 +111,7 @@ async def run_query_7_días(adv_id: str):
             message = f"No existe el advertiser {adv_id} en nuestra base." #NUEVO
             raise HTTPException(status_code=404, detail=message)
         else:
-            response["top_20_ctr"] = f"No se encontraron resultados para el advertiser {adv_id}, en el modelo top_20_ctr para el periodo del {fecha_inicio} al {fecha_final}"
+            message =  f"No se encontraron resultados para el advertiser {adv_id}, en el modelo top_20_ctr para el periodo del {fecha_inicio} al {fecha_final}"
             raise HTTPException(status_code=202, detail=message)
     else:
         response["top_20_ctr"] = top_20_ctr_rows
