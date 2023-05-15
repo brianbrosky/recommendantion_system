@@ -32,10 +32,11 @@ def FiltrarDatos(s3_object_advertiser_ids, s3_object_ads_views, s3_object_produc
     obj = s3.get_object(Bucket = bucket_name, Key=s3_object_product_views) #definimos el archivo a levantar
     df_product_views = pd.read_csv(obj['Body']) #levantamos el DF
 
-    execution_date = kwargs['data_interval_end'].date()
-    fecha_hoy = datetime.combine(execution_date, datetime.min.time())
-    yesterday = fecha_hoy - timedelta(days=1)
-    fecha_ayer =  yesterday.date()
+    #execution_date = kwargs['data_interval_end'].date()
+    #fecha_hoy = datetime.combine(execution_date, datetime.min.time())
+    #yesterday = fecha_hoy - timedelta(days=1)
+    #fecha_ayer =  yesterday.date()
+    fecha_ayer = kwargs['execution_date'].date()
 
     #convertimos los campos date en datetime
     df_product_views['date'] = pd.to_datetime(df_product_views['date']).dt.date
