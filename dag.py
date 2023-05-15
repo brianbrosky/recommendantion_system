@@ -32,7 +32,10 @@ def FiltrarDatos(s3_object_advertiser_ids, s3_object_ads_views, s3_object_produc
     obj = s3.get_object(Bucket = bucket_name, Key=s3_object_product_views) #definimos el archivo a levantar
     df_product_views = pd.read_csv(obj['Body']) #levantamos el DF
 
-    fecha_ayer =  kwargs['execution_date'].date() - timedelta(days=1)
+    execution_date = kwargs['execution_date'].date()
+    fecha_hoy = datetime.combine(execution_date, datetime.min.time())
+    yesterday = fecha_hoy - timedelta(days=1)
+    fecha_ayer =  yesterday.date()
 
     #convertimos los campos date en datetime
     df_product_views['date'] = pd.to_datetime(df_product_views['date']).dt.date
@@ -79,7 +82,7 @@ def TopProduct(s3_object_product_views_filt, **kwargs):
     df_top20 = df_count_sorted.groupby('advertiser_id').head(20)
 
     #Creamos una columna con la fecha de recomendacion
-    fecha_hoy =   kwargs['execution_date'].date()
+    fecha_hoy = kwargs['execution_date'].date()
 
     df_top20['fecha_recom'] = fecha_hoy 
     s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20.csv', Body=df_top20.to_csv(index=False))#.encode('utf-8'))
@@ -112,7 +115,7 @@ def TopCTR (s3_object_ads_views_filt, **kwargs):
     df_top20_CTR = df_sorted.groupby('advertiser_id').head(20)
 
     #Creamos una columna con la fecha de recomendacion
-    fecha_hoy =  kwargs['execution_date'].date()
+    fecha_hoy = kwargs['execution_date'].date()
     df_top20_CTR['fecha_recom'] = fecha_hoy #pd.to_datetime(pd.Timestamp.today().date()).strftime('%Y-%m-%d')
 
     s3.put_object(Bucket=bucket_name, Key='Data/Processed/df_top20_CTR.csv', Body=df_top20_CTR.to_csv(index=False))#.encode('utf-8'))
