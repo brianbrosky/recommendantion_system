@@ -1,6 +1,7 @@
 import psycopg2
 import pandas as pd
 import boto3
+import csv
 
 # instanciamos los objetos de s3
 s3 = boto3.client("s3") #definimos un cliente para trabajar con S3 usando boto3
