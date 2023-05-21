@@ -37,12 +37,12 @@ cur = conn.cursor()
 # conn.commit()
 
 #SELECT PARA VER REGISTROS
-cur.execute('select * from top_20') 
-rows = cur.fetchall()
-for row in rows:
-    print(row)
+# cur.execute('select * from top_20') 
+# rows = cur.fetchall()
+# for row in rows:
+#     print(row)
 
-conn.commit()
+# conn.commit()
 
 cur.execute('select * from top_20_ctr') 
 rows = cur.fetchall()
