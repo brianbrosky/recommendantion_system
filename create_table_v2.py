@@ -43,7 +43,7 @@ cur = conn.cursor()
 
 
 
-cur.execute('select * from top_20_ctr where fecha_recom = "2023-05-13"') 
+cur.execute('select * from top_20_ctr where fecha_recom = '2023-05-13'') 
 rows = cur.fetchall()
 
 # Generar archivo CSV y escribir los registros
