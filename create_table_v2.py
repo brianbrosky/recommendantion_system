@@ -29,47 +29,41 @@ cur = conn.cursor()
 
 
 # #SELECT PARA VER REGISTROS
-# cur.execute('select * from top_20') 
-# rows = cur.fetchall()
+cur.execute('select * from top_20') 
+rows = cur.fetchall()
 
-# # Generar archivo CSV y escribir los registros
-# with open('registros.csv', 'w', newline='') as csvfile:
-#     writer = csv.writer(csvfile)
-#     writer.writerows(rows)
+# Generar archivo CSV y escribir los registros
+with open('registros.csv', 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerows(rows)
 
-# # Cargar el archivo CSV en el bucket de S3
-# s3.upload_file('registros.csv', bucket_name, 'registros.csv')
-# # s3.put_object(Bucket=bucket_name, Key='Data/Processed/registros.csv', Body=df_product_views.to_csv(index=False))#.encode('utf-8'))
-
-
-
-# cur.execute('select * from top_20_ctr') 
-# rows = cur.fetchall()
-
-# # Generar archivo CSV y escribir los registros
-# with open('registros_ctr.csv', 'w', newline='') as csvfile:
-#     writer = csv.writer(csvfile)
-#     writer.writerows(rows)
-
-# # Cargar el archivo CSV en el bucket de S3
-# s3.upload_file('registros_ctr.csv', bucket_name, 'registros_ctr.csv')
-
-# # Cerrar la conexión
-# cur.close()
-# conn.close()
+# Cargar el archivo CSV en el bucket de S3
+s3.upload_file('registros.csv', bucket_name, 'registros.csv')
+# s3.put_object(Bucket=bucket_name, Key='Data/Processed/registros.csv', Body=df_product_views.to_csv(index=False))#.encode('utf-8'))
 
 
 
-#BORRAR REGISTROS VIEJOS
-cur.execute("DELETE FROM top_20 WHERE fecha_recom <='2023-05-13'") 
-conn.commit()
+cur.execute('select * from top_20_ctr') 
+rows = cur.fetchall()
 
+# Generar archivo CSV y escribir los registros
+with open('registros_ctr.csv', 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerows(rows)
 
-cur.execute("DELETE FROM top_20_ctr WHERE fecha_recom <='2023-05-13'") 
-conn.commit()
+# Cargar el archivo CSV en el bucket de S3
+s3.upload_file('registros_ctr.csv', bucket_name, 'registros_ctr.csv')
 
-
-
-# Close the cursor and connection
+# Cerrar la conexión
 cur.close()
 conn.close()
+
+
+
+# #BORRAR REGISTROS VIEJOS
+# cur.execute("DELETE FROM top_20 WHERE fecha_recom <='2023-05-13'") 
+# conn.commit()
+# cur.execute("DELETE FROM top_20_ctr WHERE fecha_recom <='2023-05-13'") 
+# conn.commit()
+# cur.close()
+# conn.close()
