@@ -29,7 +29,7 @@ cur = conn.cursor()
 
 
 #SELECT PARA VER REGISTROS
-cur.execute('select * from top_20 where fecha_recom <="13/5/2023"') 
+cur.execute('select * from top_20 where fecha_recom = "13/5/2023"') 
 rows = cur.fetchall()
 
 # Generar archivo CSV y escribir los registros
@@ -43,7 +43,7 @@ s3.upload_file('registros.csv', bucket_name, 'registros.csv')
 
 
 
-cur.execute('select * from top_20_ctr where fecha_recom <="13/5/2023"') 
+cur.execute('select * from top_20_ctr where fecha_recom = "13/5/2023"') 
 rows = cur.fetchall()
 
 # Generar archivo CSV y escribir los registros
